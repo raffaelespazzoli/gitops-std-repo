@@ -10,7 +10,7 @@ These are the main folders:
 
 This folder contains all of the root pieces of configurations. Each piece of configuration resides in its own subfolder. These components should never derive from anything (i.e. their resources and components lists in the `kustomization.yaml` file are empty).
 
-![Components](/.docs/media/components.jpeg "Components")
+![Components](.docs/media/components.png "Components")
 
 ### Groups
 
@@ -32,7 +32,7 @@ Each group has it own folder. Within this folder, we can find two things:
 - A set of folders containing the group-specific overlays over some set of components.
 - A root level kustomization that generates the ArgoCD applications for this group, using the [argocd-app-of-app](.helm/charts/argocd-app-of-app/) helm chart.
 
-![Groups](/.docs/media/components.jpeg "Groups")
+![Groups](.docs/media/groups.png "Groups")
 
 In this example, in green you can see the overlays over one component, while in red you can see the resources needed to generate the Argocd Applications for this group.
 
