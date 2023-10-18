@@ -2,9 +2,13 @@
 
 As the title suggest this standard layout is laser focused on addressing the infrastructure configurations (a.k.a. day-two) for a multi-cluster deployment of OpenShift.
 
+TL;DR: jump to the [getting started](#getting-started-with-this-repo) section.
+
 ## Repo Structure
 
 These are the main folders:
+
+![Folders](.docs/media/folders.png "Folders")
 
 ### Components
 
@@ -57,11 +61,35 @@ components:
 
 In no particular order, here are the design decisions that guides us to this current folder structure.
 
-- Argocd Applications for the [App of App pattern](https://argo-cd.readthedocs.io/en/stable/operator-manual/cluster-bootstrapping/#app-of-apps-pattern) are generated via an Helm chart.
-- Kustmomize is the primary templating mechanism, if one needs to use helm charts, that is still via the kustomize [HelmChartInflaterGenerator](https://kubectl.docs.kubernetes.io/references/kustomize/builtins/#_helmchartinflationgenerator_).
+- ArgoCD Applications for the [App of App pattern](https://argo-cd.readthedocs.io/en/stable/operator-manual/cluster-bootstrapping/#app-of-apps-pattern) are generated via a Helm chart. This was chosen over the ApplicationSet approach. The reason of this choice is that The ApplicationSet controller seems a bit unstable and that helm charts offer mode flexibly.
+- Kustomize is the primary templating mechanism, if one needs to use helm charts, that is still possible via the Kustomize [HelmChartInflaterGenerator](https://kubectl.docs.kubernetes.io/references/kustomize/builtins/#_helmchartinflationgenerator_). The reason of this choice are that Kustomize is easy to pick up in general so starting with kustomize is easier for new users. Also having kustomize at the top level provides homogeneity. This without losing flexibly as one can always use helm charts. 
+- Groups of clusters a modeled via Kustomize components, this way they can be composed as opposed to being inherited giving more flexibility.
 
 
-## How to use this repo
+## Getting started with this repo
+
+Press the clone repo at the right top corner of the page and follow the github instructions to create a detached copy of this repo.
+
+Once you have a copy of this repo in your organization, you have to seed your Hub cluster to point to this repo.
+
+To do so you can simply run this commands, however you might want to implement these steps in different ways in your environment:
+
+```sh
+export gitops_repo=<your newly created repo>
+export cluster_name=<your hub cluster name, typically "hub">
+oc apply -f .bootstrap/subscription.yaml
+oc apply -f .bootstrap/cluster-rolebinding.yaml
+oc apply -f .bootstrap/argocd.yaml
+envsubst < .bootstrap/root-application.yaml | oc apply -f -
+```
+
+Note: for pedagogical reason this repo contains some example of components, groups and clusters, you will have to likely remove these examples and start adding the configurations you actually need.
 
 ## Use cases
+
+### cluster configuration pinning and promotion
+
+### group configuration pinning and promotion
+
+### cluster configuration pinning and promotion
 
