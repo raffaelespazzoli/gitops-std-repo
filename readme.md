@@ -87,9 +87,13 @@ Note: for pedagogical reason this repo contains some example of components, grou
 
 ## Use cases
 
-### cluster configuration pinning and promotion
+### component configuration pinning and promotion
 
 ### group configuration pinning and promotion
 
 ### cluster configuration pinning and promotion
+
+### how to bootstrap a newly create/registered cluster with gitops
+
+### how to pass cluster-level variables to all of the configurations
 
