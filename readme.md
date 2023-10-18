@@ -68,7 +68,7 @@ In no particular order, here are the design decisions that guides us to this cur
 
 ## Getting started with this repo
 
-Press the clone repo at the right top corner of the page and follow the github instructions to create a detached copy of this repo.
+Press the `Use This Template` button at the right top corner of this page and follow the github instructions to create a detached copy of this repo.
 
 Once you have a copy of this repo in your organization, you have to seed your Hub cluster to point to this repo.
 
