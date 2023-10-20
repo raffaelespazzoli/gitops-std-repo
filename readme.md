@@ -65,6 +65,11 @@ In no particular order, here are the design decisions that guides us to this cur
 - Kustomize is the primary templating mechanism, if one needs to use helm charts, that is still possible via the Kustomize [HelmChartInflaterGenerator](https://kubectl.docs.kubernetes.io/references/kustomize/builtins/#_helmchartinflationgenerator_). The reason of this choice are that Kustomize is easy to pick up in general so starting with kustomize is easier for new users. Also having kustomize at the top level provides homogeneity. This without losing flexibly as one can always use helm charts. 
 - Groups of clusters a modeled via Kustomize components, this way they can be composed as opposed to being inherited giving more flexibility.
 
+## Conventions
+
+components names
+
+sync waves
 
 ## Getting started with this repo
 
