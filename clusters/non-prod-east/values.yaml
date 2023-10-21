@@ -21,3 +21,14 @@ default:
     - FailOnSharedResource=true
     - RespectIgnoreDifferences=true
     - CreateNamespace=false      
+
+applications:
+
+  kube-ops-view:
+    annotations:
+      argocd.argoproj.io/compare-options: IgnoreExtraneous
+      argocd.argoproj.io/sync-wave: '15'
+    destination:
+      namespace: kube-ops-view
+    source:
+      path: clusters/non-prod-east/overlays/kube-ops-view            
