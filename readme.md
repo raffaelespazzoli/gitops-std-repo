@@ -12,7 +12,7 @@ These are the main folders:
 
 ### Components
 
-This folder contains all of the root pieces of configurations. Each piece of configuration resides in its own subfolder. These components should never derive from anything (i.e. their resources and components lists in the `kustomization.yaml` file are empty).
+This folder contains all of the root pieces of configurations, these are sometime also called structural part of the configuration, as opposed to the parametric part that depends on groups and clusters. Each piece of configuration resides in its own subfolder. These components should never derive from anything (i.e. their resources and components lists in the `kustomization.yaml` file are empty).
 
 ![Components](.docs/media/components.png "Components")
 
@@ -34,7 +34,7 @@ The `all` group almost always exists and it captures the configuration that goes
 Each group has it own folder. Within this folder, we can find two things: 
 
 - A set of folders containing the group-specific overlays over some set of components.
-- A root level kustomization that generates the ArgoCD applications for this group, using the [argocd-app-of-app](.helm/charts/argocd-app-of-app/) helm chart.
+- A root level kustomization that generates the ArgoCD applications for this group, using the [argocd-app-of-app](.helm/charts/argocd-app-of-app/) helm chart. See the [all group](./groups/all/kustomization.yaml) for example.
 
 ![Groups](.docs/media/groups.png "Groups")
 
@@ -56,6 +56,8 @@ components:
   - ../../groups/non-prod
   - ../../groups/geo-east
 ```
+
+See also the [hub cluster](./clusters/hub/kustomization.yaml) for example
 
 ## Design Decisions
 
@@ -92,11 +94,79 @@ Note: for pedagogical reason this repo contains some example of components, grou
 
 ## Use cases
 
-### component configuration pinning and promotion
+### Pinning and Promotions
 
-### group configuration pinning and promotion
+We use the concept of git repository pinning to version and then promote configurations. Pinning can be done via tagging or directly referencing commit SHAs.
+Promoting always consists of changing the pinned version. Depending on where you pin you can manage to promote a single configuration in a individual cluster or all of the configurations in a group for individual clusters ir all of the configurations for a cluster ( and more combinations are even possible).
 
-### cluster configuration pinning and promotion
+#### Component configuration Pinning and Promotion
+
+To pin a component to a specific version, use pinning when importing it in a cluster level or group level configuration. This will look like this in the values file for the cluster/group:
+
+```yaml
+applications:
+
+  cert-manager-operator:
+    annotations:
+      argocd.argoproj.io/compare-options: IgnoreExtraneous
+      argocd.argoproj.io/sync-wave: '5'
+    destination:
+      namespace: cert-manager
+    source:
+      path: components/cert-manager-operator
+      targetRevision: <pin>
+```
+
+
+#### group configuration pinning and promotion
+
+In order to pin an entire group-level configuration for a given cluster, pin the component in the kustomization file, like this:
+
+```yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+components:
+  - ../../groups/all
+  - https://github.com/raffaelespazzoli/gitops-std-repo/groups/non-prod?ref=v1.0.6
+  - ../../groups/geo-east
+
+```
+
+#### cluster configuration pinning and promotion
+
+In order to version pin an entire cluster configuration, you need to do the pinning at the app of app root level. We have so far not talked about how the app of app so created, but the pinning would look like this:
+
+```yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: root-applications
+  # You'll usually want to add your resources to the argocd namespace.
+  namespace: openshift-gitops
+  # Add this finalizer ONLY if you want these to cascade delete.
+  finalizers:
+    # The default behaviour is foreground cascading deletion
+    - resources-finalizer.argocd.argoproj.io
+    # Alternatively, you can use background cascading deletion
+    # - resources-finalizer.argocd.argoproj.io/background
+  # Add labels to your application object.
+  labels:
+    app-source: root
+    repo: cluster-config
+spec:
+  # The project the application belongs to.
+  project: default
+
+  # Source of the application manifests
+  source:
+    repoURL: ${gitops_repo}  # Can point to either a Helm chart repo or a git repo.
+    targetRevision: <pin>  # For Helm, this refers to the chart version.
+    path: clusters/${cluster_name}  # This has no meaning for Helm charts pulled directly from a Helm repo instead of git.
+...
+```
+
+again using the `targetRevision` field.
 
 ### how to bootstrap a newly create/registered cluster with gitops
 
