@@ -7,7 +7,7 @@ projects:
     description: Project for overall cluster configuration
     namespace: openshift-gitops
     sourceRepos:
-    - {{ Values.defaults.apps.source.repoURL }}
+    - "{{ .Values.default.app.source.repoURL }}"
     destinations: |
       - namespace: '*'
         server: https://kubernetes.default.svc
